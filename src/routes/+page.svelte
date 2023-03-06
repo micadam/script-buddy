@@ -12,7 +12,6 @@
 	let line_picking_mode = false;
 	let script: Script | null = null;
 	let speaking_promise: Promise<void> | null = null;
-	let text_input: HTMLTextAreaElement;
 	let user_lines = new Map<Number, EDSpan[]>();
 
 	const handleFileUpload = (event: any) => {
@@ -73,7 +72,8 @@
 		// This is for svelte to catch the change
 		user_lines = user_lines;
 		current_line += 1;
-		text_input.value = '';
+		const text_area = event.target as HTMLTextAreaElement;
+		text_area.value = '';
 		speak_other_characters_lines();
 	}
 
@@ -129,7 +129,11 @@
 	}
 
 	function init(el: HTMLElement) {
+		if (line_picking_mode) {
+			return;
+		}
 		el.focus();
+		el.scrollIntoView(false);
 	}
 </script>
 
@@ -140,23 +144,26 @@
 		<br />
 		<input type="file" accept=".json" on:change={handleFileUpload} />
 	{:else}
-		<input type="checkbox" bind:checked={fast_forward} /> Fast forward
-		<!-- A button to trigger line picking mode -->
-		<button
-			on:click={() => {
-				line_picking_mode = true;
-			}}>Pick line</button
-		>
-		<select bind:value={character} on:change={change_character}>
-			{#each all_characters as c}
-				<option value={c}>{c}</option>
-			{/each}
-		</select>
+		<div id="controls">
+			<input type="checkbox" bind:checked={fast_forward} /> Fast forward
+			<!-- A button to trigger line picking mode -->
+			<button
+				on:click={() => {
+					line_picking_mode = true;
+				}}>Pick line</button
+			>
+			<select bind:value={character} on:change={change_character}>
+				{#each all_characters as c}
+					<option value={c}>{c}</option>
+				{/each}
+			</select>
+		</div>
 		<div class="lines">
 			{#each script.lines as line}
 				{#if line_picking_mode || (line.line_no >= start_line && line.line_no <= current_line && !(line.line_no == current_line && line.character == character))}
 					<div
 						class="line"
+						use:init
 						on:click={() => {
 							pick_line(line);
 						}}
@@ -185,7 +192,6 @@
 					<textarea
 						id="user_input"
 						on:keypress={handle_user_input}
-						bind:this={text_input}
 						use:init
 					/>
 				</div>
@@ -201,20 +207,14 @@
 	}
 	:global(body) {
 		background-color: white;
-		overflow-y: scroll;
-		overscroll-behavior-y: contain;
-		scroll-snap-type: y proximity;
 		width: 100%;
 		height: 100%;
 		margin: 0;
 	}
-	.lines {
-		margin-top: 1em;
+	#container {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-	}
-	#container {
 		margin: 0;
 		background-color: lightyellow;
 		min-width: 50%;
@@ -223,18 +223,23 @@
 		margin: auto;
 		text-align: center;
 	}
+	.lines {
+		width: 100%;
+		margin-top: 1em;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		overflow: auto;
+	}
 	.line {
 		width: 95%;
-		margin-bottom: 1em;
 		background-color: gold;
 		margin-bottom: 0.5em;
+		scroll-margin: 1em;
 		transition: background-color 0.5s;
 	}
 	.line:hover {
 		background-color: yellow;
-	}
-	.line:last-child {
-		scroll-snap-align: end;
 	}
 	select {
 		max-width: 100%;
