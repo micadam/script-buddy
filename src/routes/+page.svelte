@@ -58,6 +58,7 @@
 		if (event.key != 'Enter' || script == null) {
 			return;
 		}
+		event.preventDefault();
 		const line = (event.target as HTMLInputElement).value;
 		const dist = ed.levenshtein(
 			script.lines[current_line - 1].line,
