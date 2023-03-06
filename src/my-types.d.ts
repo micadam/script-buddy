@@ -1,7 +1,7 @@
 export interface Line {
 	readonly character: string;
 	readonly line: string;
-	readonly act: number;
+	readonly act?: number;
 	readonly line_no: number;
 }
 

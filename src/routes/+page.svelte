@@ -24,7 +24,12 @@
 		reader.readAsText(file);
 		reader.onload = (event) => {
 			const result_string = event.target?.result as string;
-			script = { lines: JSON.parse(result_string) };
+			const result_lines = JSON.parse(result_string);
+			for (let i = 0; i < result_lines.length; i++) {
+				result_lines[i].line_no = i + 1;
+			}
+			script = { lines: result_lines };
+			console.log(script);
 			all_characters = [...new Set(script.lines.map((l) => l.character))];
 			character = all_characters[0];
 			speak_other_characters_lines();
@@ -115,6 +120,7 @@
 		start_line = line.line_no - 5;
 		current_line = line.line_no;
 		user_lines = new Map<Number, EDSpan[]>();
+		speak_other_characters_lines();
 	}
 
 	function change_character(event: any) {
@@ -127,7 +133,7 @@
 	}
 </script>
 
-<div id="script">
+<div id="container">
 	{#if script == null}
 		<h1>No script uploaded</h1>
 		Upload a script in .json format to get started.
@@ -146,10 +152,11 @@
 				<option value={c}>{c}</option>
 			{/each}
 		</select>
-		<ul>
+		<div class="lines">
 			{#each script.lines as line}
 				{#if line_picking_mode || (line.line_no >= start_line && line.line_no <= current_line && !(line.line_no == current_line && line.character == character))}
-					<li
+					<div
+						class="line"
 						on:click={() => {
 							pick_line(line);
 						}}
@@ -169,55 +176,94 @@
 						{:else}
 							{line.line}
 						{/if}
-					</li>
+					</div>
 				{/if}
 			{/each}
 			{#if script.lines[current_line - 1].character == character}
-				<li>
+				<div class="line">
 					<h4>{character}</h4>
-					<textarea id="user_input" on:keyup={handle_user_input} bind:this={text_input} use:init />
-				</li>
+					<textarea
+						id="user_input"
+						on:keypress={handle_user_input}
+						bind:this={text_input}
+						use:init
+					/>
+				</div>
 			{/if}
-		</ul>
+		</div>
 	{/if}
 </div>
 
 <style>
+	:global(html) {
+		width: 100%;
+		height: 100%;
+	}
 	:global(body) {
-		background-color: lightyellow;
+		background-color: white;
 		overflow-y: scroll;
 		overscroll-behavior-y: contain;
 		scroll-snap-type: y proximity;
+		width: 100%;
+		height: 100%;
+		margin: 0;
 	}
-	ul {
-		list-style-type: none;
+	.lines {
+		margin-top: 1em;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
 	}
-	li {
-		margin-bottom: 1em;
-		background-color: gold;
-	}
-	li:hover {
-		background-color: yellow;
-	}
-	li:last-child {
-		scroll-snap-align: end;
-	}
-	#script {
-		width: 50%;
+	#container {
+		margin: 0;
+		background-color: lightyellow;
+		min-width: 50%;
+		max-width: 500px;
+		height: 100%;
 		margin: auto;
 		text-align: center;
+	}
+	.line {
+		width: 95%;
+		margin-bottom: 1em;
+		background-color: gold;
+		margin-bottom: 0.5em;
+		transition: background-color 0.5s;
+	}
+	.line:hover {
+		background-color: yellow;
+	}
+	.line:last-child {
+		scroll-snap-align: end;
 	}
 	select {
 		max-width: 100%;
 	}
 	#user_input {
-		width: 100%;
+		width: 90%;
 		height: 3em;
+	}
+	h1 {
+		padding-top: 0.5em;
+		margin-top: 0;
 	}
 	h4 {
 		margin: 0;
 	}
 	span {
 		margin: 0;
+	}
+	button {
+		margin: 0;
+		background-color: goldenrod;
+		border: none;
+		padding: 0.2em;
+		margin: 0.2em;
+		font-family: arial, sans-serif;
+		cursor: pointer;
+		transition: background-color 0.5s;
+	}
+	button:hover {
+		background-color: yellow;
 	}
 </style>
