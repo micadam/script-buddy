@@ -28,7 +28,6 @@
 				result_lines[i].line_no = i + 1;
 			}
 			script = { lines: result_lines };
-			console.log(script);
 			all_characters = [...new Set(script.lines.map((l) => l.character))];
 			character = all_characters[0];
 			speak_other_characters_lines();
@@ -192,7 +191,8 @@
 					<h4>{character}</h4>
 					<textarea
 						id="user_input"
-						on:keypress={handle_user_input}
+						on:keydown={handle_user_input}
+						enterkeyhint="done"
 						use:init
 					/>
 				</div>
