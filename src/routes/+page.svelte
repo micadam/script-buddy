@@ -142,10 +142,12 @@
 		<h1>No script uploaded</h1>
 		Upload a script in .json format to get started.
 		<br />
-		<input type="file" accept=".json" on:change={handleFileUpload} />
+		<label for="file-upload" class="upload">Upload script</label>
+		<input type="file" id="file-upload" accept=".json" on:change={handleFileUpload} />
 	{:else}
 		<div id="controls">
-			<input type="checkbox" bind:checked={fast_forward} /> Fast forward
+			<label for="fast-forward" class="fast-forward">Fast forward</label>
+			<input type="checkbox" id="fast-forward" bind:checked={fast_forward} />
 			<!-- A button to trigger line picking mode -->
 			<button
 				on:click={() => {
@@ -189,12 +191,7 @@
 			{#if script.lines[current_line - 1].character == character}
 				<div class="line">
 					<h4>{character}</h4>
-					<textarea
-						id="user_input"
-						on:keydown={handle_user_input}
-						enterkeyhint="done"
-						use:init
-					/>
+					<textarea id="user_input" on:keydown={handle_user_input} enterkeyhint="done" use:init />
 				</div>
 			{/if}
 		</div>
@@ -223,6 +220,23 @@
 		height: 100%;
 		margin: auto;
 		text-align: center;
+	}
+	button,
+	.upload {
+		margin-top: 1em;
+		display: inline-block;
+		padding: 0.5em;
+		background-color: gold;
+		border: 1px solid black;
+		transition: background-color 0.5s;
+		cursor: pointer;
+	}
+	button:hover,
+	.upload:hover {
+		background-color: yellow;
+	}
+	input[type='file'] {
+		display: none;
 	}
 	.lines {
 		width: 100%;
@@ -258,18 +272,5 @@
 	}
 	span {
 		margin: 0;
-	}
-	button {
-		margin: 0;
-		background-color: goldenrod;
-		border: none;
-		padding: 0.2em;
-		margin: 0.2em;
-		font-family: arial, sans-serif;
-		cursor: pointer;
-		transition: background-color 0.5s;
-	}
-	button:hover {
-		background-color: yellow;
 	}
 </style>
